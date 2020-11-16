@@ -28,13 +28,13 @@ io.on('connection', (client) => {
 
         // Enviamos la lista de personas conectadas de la misma sala pero sólo a los usuarios de la misma sala
         client.broadcast.to( data.sala ).emit('listaPersonas', usuarios.getPersonasPorSala( data.sala ));
-
+        client.broadcast.to( data.sala ).emit('crearMensaje', crearMensaje('Administrador', `${ data.nombre } se unió al chat`) );
         // En el callback retornamos las personas conectadas a la misma sala de chat
         callback( usuarios.getPersonasPorSala( data.sala ) );
 
     });
 
-    client.on('crearMensaje', (data) => {
+    client.on('crearMensaje', (data, callback) => {
 
         // Recuperamos el nombre del usuario que envía el mensaje
         let persona = usuarios.getPersona( client.id );
@@ -44,6 +44,8 @@ io.on('connection', (client) => {
 
         // Enviamos el mensaje a todos los usuarios de la misma sala!!!
         client.broadcast.to(persona.sala).emit('crearMensaje', mensaje);
+
+        callback(mensaje);
 
     });
 

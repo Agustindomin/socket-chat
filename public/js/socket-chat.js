@@ -1,28 +1,28 @@
 var socket = io();
 
-// Recuperamos los parámetros Url
-var params = new URLSearchParams( window.location.search );
+var params = new URLSearchParams(window.location.search);
 
-// validaciones
-if ( !params.has('nombre') || !params.has('sala')) { // si no viene el nombre del usuario o la sala
+if (!params.has('nombre') || !params.has('sala')) {
     window.location = 'index.html';
-    throw new Error('El nombre y la sala son necesarios');
+    throw new Error('El nombre y sala son necesarios');
 }
 
-// Definimos datos del usuario
 var usuario = {
     nombre: params.get('nombre'),
     sala: params.get('sala')
-} 
+};
+
+
 
 socket.on('connect', function() {
-
     console.log('Conectado al servidor');
 
-    // Emitimos al server el nombre del usuario conectado
-    socket.emit('entrarChat', usuario, function( resp ) {
-        console.log('Usuarios conectados', resp);
+    socket.emit('entrarChat', usuario, function(resp) {
+        // console.log('Usuarios conectados', resp);
+        // Renderizamos los usuarios en chat.html
+        renderizarUsuarios(resp);
     });
+
 });
 
 // escuchar
@@ -33,9 +33,9 @@ socket.on('disconnect', function() {
 });
 
 
-// // Enviar información
+// Enviar información
 // socket.emit('crearMensaje', {
-//     usuario: 'Fernando',
+//     nombre: 'Fernando',
 //     mensaje: 'Hola Mundo'
 // }, function(resp) {
 //     console.log('respuesta server: ', resp);
@@ -43,17 +43,22 @@ socket.on('disconnect', function() {
 
 // Escuchar información
 socket.on('crearMensaje', function(mensaje) {
-    console.log('Servidor:', mensaje);
+    // console.log('Servidor:', mensaje);
+    renderizarMensajes(mensaje, false);
+    scrollBottom();
 });
 
-// Escuchar cambios de usuarios, cuando un  usuario entra ó sale del chat
+// Escuchar cambios de usuarios
+// cuando un usuario entra o sale del chat
 socket.on('listaPersonas', function(personas) {
-    console.log(personas);
+    // console.log('personas' ,personas);
+    // Renderizamos los usuarios en chat.html
+    renderizarUsuarios(personas);
 });
 
-// MENSAJES PRIVADOS, usuario a usuario
+// Mensajes privados
 socket.on('mensajePrivado', function(mensaje) {
 
-    console.log('Mensaje privado:', mensaje);
+    console.log('Mensaje Privado:', mensaje);
 
 });
